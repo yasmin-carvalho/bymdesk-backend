@@ -1,0 +1,35 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+enum Sector {
+  MANUTENCAO_TI
+  MANUTENCAO_ELETRICA
+  MANUTENCAO_PREDIAL
+  OUTROS
+}
+
+enum Role {
+  ANALYST
+  CLIENT
+  ADMIN
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                 Int    @id @default(autoincrement())
+  name               String
+  email              String
+  phone              String
+  password           String
+  matriculation      String @db.Char(10)
+  responsible_sector Sector @default(OUTROS)
+  role               Role   @default(CLIENT)
+}
