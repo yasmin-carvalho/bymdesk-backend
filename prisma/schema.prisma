@@ -14,6 +14,13 @@ enum Role {
   ADMIN
 }
 
+enum Status {
+  INICIALIZADO
+  ANDAMENTO
+  FINALIZADO
+  CANCELADO
+}
+
 generator client {
   provider = "prisma-client-js"
 }
@@ -24,12 +31,70 @@ datasource db {
 }
 
 model User {
-  id                 Int    @id @default(autoincrement())
+  id                 Int      @id @default(autoincrement())
   name               String
   email              String
-  phone              String
+  phone              String?
   password           String
-  matriculation      String @db.Char(10)
-  responsible_sector Sector @default(OUTROS)
-  role               Role   @default(CLIENT)
+  matriculation      String?  @db.Char(10)
+  responsible_sector Sector?
+  role               Role     @default(CLIENT)
+  created_at         DateTime @default(now())
+  updated_at         DateTime @default(now())
+  ticket             Ticket[]
+
+  @@map("users")
+}
+
+model Matriculation {
+  id            Int      @id @default(autoincrement())
+  matriculation String
+  created_at    DateTime @default(now())
+  updated_at    DateTime @default(now())
+
+  @@map("matriculations")
+}
+
+model Block {
+  id         Int      @id @default(autoincrement())
+  block      String
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now())
+
+  ticket Ticket[]
+  locale Locale[]
+
+  @@map("blocks")
+}
+
+model Locale {
+  id          Int      @id @default(autoincrement())
+  locale      String
+  created_atc DateTime @default(now())
+  updated_at  DateTime @default(now())
+
+  block    Block    @relation(fields: [block_id], references: [id])
+  block_id Int
+  tickets  Ticket[]
+
+  @@map("locales")
+}
+
+model Ticket {
+  id                 Int      @id @default(autoincrement())
+  responsible_sector Sector   @default(OUTROS)
+  description        String
+  image              String
+  status             Status   @default(INICIALIZADO)
+  created_atc        DateTime @default(now())
+  updated_at         DateTime @default(now())
+
+  user      User   @relation(fields: [user_id], references: [id])
+  user_id   Int
+  block     Block  @relation(fields: [block_id], references: [id])
+  block_id  Int
+  locale    Locale @relation(fields: [locale_id], references: [id])
+  locale_id Int
+
+  @@map("tickets")
 }
